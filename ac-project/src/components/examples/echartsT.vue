@@ -32,7 +32,7 @@
       <ve-chart v-if="isChart" height="800px" :extend="chartExtend" :digit=10 :data-empty="isChartEmpty" :judge-width="editWidth" :data="chartData" :settings="chartSettings" :data-zoom="dataZoom"></ve-chart>
       <ve-heatmap v-if="isHeatmap" :data-empty="isChartEmpty" :data="chartData" :judge-width="editWidth"></ve-heatmap>
       <edit-table ref="table" v-if="isTable" :pagination="pagination" :pageId="pageId" :tableRows="tableRows" :tableCols="tableCols"></edit-table>
-      <ve-scatter v-if="isScatter" :data="chartData"></ve-scatter>
+      <ve-scatter v-if="isScatter"   :extend="chartExtend" :digit=10 :data-empty="isChartEmpty" :judge-width="editWidth" :data="chartData" :settings="chartSettings" :data-zoom="dataZoom"></ve-scatter>
     </el-col>
     <el-col :span="spanS">
       <edit-page :pageId="pageId"></edit-page>
@@ -81,15 +81,7 @@ export default {
   },
   data() {
     this.typeArr = ['line', 'histogram', 'pie', 'bar', 'ring', 'waterfall', 'funnel', 'radar']
-    this.chartSettings = {
-      scale: [true, true],
-      digit: 10
-    }
-    this.dataZoom = [{
-      type: 'slider',
-      start: 0,
-      end: 20
-    }]
+    this.dataZoom = []
     return {
       cols: [], //图表列
       rowCol: "1", //标识数据展示方向，1正常 2是行转列
@@ -123,12 +115,14 @@ export default {
       velcles: [],
       editWidth: true,
       chartData: {},
-      chartSettings: {},
+      chartSettings: {
+        scale: [true, true],
+        digit: 10
+      },
       chartExtend: { //线平滑化
         series: {
           smooth: false
         }
-
       },
       isTable: false,
       isChart: false,
@@ -190,14 +184,10 @@ export default {
             this.isHeatmap = true;;
           } else if (type == 50) {
             this.isScatter = true;
+              this.setChart(type, true);
           } else {
             this.isChart = true;
-            this.chartSettings = {
-              type: this.typeArr[type],
-              scale: [true, true],
-              digit: 10,
-              showDataZoom: true
-            }
+            this.setChart(type, true)
           }
         }
       } //end if
@@ -297,14 +287,10 @@ export default {
             this.isHeatmap = true;
           } else if (index == 50) {
             this.isScatter = true;
+              this.setChart(index, true);
           } else {
             this.isChart = true;
-            this.chartSettings = {
-              type: this.typeArr[index],
-              scale: [true, true],
-              digit: 10,
-              showDataZoom: true
-            }
+            this.setChart(index, true);
           }
         }
         if (this.form.name) {
@@ -317,12 +303,9 @@ export default {
           this.cols = this.cols.concat(this.form.x);
           this.cols = this.cols.concat(this.form.y)
           this.chartData.columns = this.cols;
-          console.log("列", this.cols);
-        }
-        console.log("coookie", this.form.rowCol);
 
+        }
         if (this.form.rowCol) {
-          console.log("列方向", this.rowCol)
           this.rowCol = this.form.rowCol;
         }
         if (this.form.rows)
@@ -333,7 +316,6 @@ export default {
         if (this.form.tableRows)
           this.tableRows = this.form.tableRows;
         var search = JSON.parse(cookie.get(this.pageId + "search"));
-        console.log("search", search);
         if (search) {
           this.selectedVehicle = search.selectedVehicle;
           this.vehicleStatus = search.vehicleStatus;
@@ -344,6 +326,29 @@ export default {
           //  this.value5 = search.value5;
 
         }
+      }
+    },
+    //设置chart的属性 index代表图表类型 isRoom表示是否需要DataZoom
+    setChart(index, isZoom) {
+      this.dataZoom = [];
+      isZoom = false;
+
+      if (index == 0 || index == 1 || index == 3) {
+        isZoom = true;
+        this.dataZoom = [{
+          type: 'slider',
+          start: 0,
+          end: 20
+        }]
+      }
+      this.chartSettings = {
+        type: this.typeArr[index],
+        scale: [true, true],
+        digit: 10,
+        showDataZoom: isZoom,
+        dimension: this.form.x,
+        metrics: this.form.y,
+        xAxisType: this.form.xAxisType
       }
     },
     search: function() {
@@ -427,7 +432,7 @@ export default {
             return item;
           });
           arTemp = that.tableRows;
-        } else if (this.rowCol == 2) {
+        } else if (this.rowCol == 2) { //按列计算，需要格式化数据项
           that.chartExtend = { //线平滑化
             grid: {             
               top: '130px', //距上边距               
@@ -443,7 +448,6 @@ export default {
           }
           that.chartData.columns = [];
           that.chartData.columns.push("item");
-
           data.forEach(item => {
             try {
               var set = JSON.parse(item.dataset);

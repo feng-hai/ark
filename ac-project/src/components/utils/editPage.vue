@@ -34,13 +34,19 @@
       <el-radio label="2" value="2">按列展示</el-radio>
     </el-radio-group>
   </el-form-item>
-  <el-form-item label="x" v-if="form.resource!=30">
+  <el-form-item label="维度" v-if="form.resource!=30">
     <el-select v-model="form.x" multiple placeholder="请选择x" @change="changeX">
       <el-option v-for="item in functionsItems" :key="item.id" :label="item.name" :value="item.id">
       </el-option>
     </el-select>
   </el-form-item>
-  <el-form-item label="y" v-if="form.resource!=30">
+  <el-form-item label="维度类型" v-if="form.resource!=30">
+    <el-select v-model="form.xAxisType"  placeholder="请选择类型" @change="changeX">
+      <el-option v-for="item in xAxisTypes" :key="item.id" :label="item.name" :value="item.id">
+      </el-option>
+    </el-select>
+  </el-form-item>
+  <el-form-item label="指标" v-if="form.resource!=30">
     <el-select v-model="form.y" multiple @change="changeY" placeholder="请选择y">
       <el-option v-for="item in functionsItems" :key="item.id" :label="item.name" :value="item.id">
       </el-option>
@@ -78,8 +84,25 @@ export default {
         id: '选项1',
         name: '黄金糕'
       }, ],
+      xAxisTypes: [{
+          name: '类别',
+          id: 'category'
+        }, {
+          name: '数值',
+          id: 'value'
+        },
+        {
+          name: '时间',
+          id: 'time'
+        },
+        {
+          name: 'log',
+          id: 'log'
+        }
+      ],
       functionsItems: [],
       form: {
+        xAxisType:'category',
         rowCol: '1',
         name: '',
         region: '',
