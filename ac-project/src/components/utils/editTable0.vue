@@ -11,12 +11,11 @@
       </div>
       <el-table size="mini" :data="master_user.data" border style="width: 100%" highlight-current-row>
         <el-table-column type="index"></el-table-column>
-        <el-table-column v-for="(v,i) in master_user.columns":key="v.field" :prop="v.field" :label="v.title" :width="v.width">
+        <el-table-column v-for="(v,i) in master_user.columns" :key="v.field" :prop="v.field" :label="v.title" :width="v.width">
           <template slot-scope="scope">
             <span v-if="scope.row.isSet">
                 <el-input  v-if="v.type==='normal'" size="mini" placeholder="请输入内容" v-model="master_user.sel[v.field]">
                 </el-input>
-
             </span>
             <span  v-if="scope.row.isSet">
             <el-select v-if="v.type==='select'" v-model="master_user.sel[v.field]"   placeholder="请选择y">
@@ -54,7 +53,6 @@
         <el-form-item label="视图名称">
           <el-input v-model="form.name"></el-input>
         </el-form-item>
-
         <el-form-item>
           <el-button type="primary" @click="onSubmitReload">更新</el-button>
           <el-button type="primary" @click="onSubmit">保存</el-button>
@@ -88,9 +86,7 @@ export default {
   },
   computed: {
     ...mapGetters([
-
       'getFuns'
-
     ]),
     ...mapState({
       eventType: state => state.echart.eventType,
@@ -104,11 +100,13 @@ export default {
       form: {
         name: '',
         unid: '',
-
       },
       munus: [{
         unid: 'http://58.213.131.5/bigger/high_light/crispr/metadata',
         title: '车辆分析数据'
+      }, {
+        unid: 'http://58.213.131.5/bigger/high_light/result/metadata',
+        title: '任务管理'
       }],
       selectedMunus: '',
       master_user: {
@@ -118,11 +116,9 @@ export default {
         Items: [{
           id: '1',
           name: '选项'
-
         }, {
           id: '2',
           name: '选项1'
-
         }]
       }
     }
@@ -142,30 +138,21 @@ export default {
       'getFuntionItemsActions'
     ]),
     changeFunctions(item) {
-
       var qs = require('qs');
       var that = this;
       that.master_user.data = [];
       axios.get(api.FUNCTIONITEM + "/" + item).then(res => {
-        console.log(res);
-
         var url = null;
         that.form.name = res.data.name;
         that.form.unid = res.data.unid;
         if (res.data.grid_column) {
-
-
           let funsItems = JSON.parse(res.data.grid_column).columnField;
           that.master_user.data = funsItems;
         }
-
-
       }).catch(ex => {
         console.log("错误", ex)
       })
-
     },
-
     onSubmit() {
       var qs = require('qs');
       var that = this;
@@ -174,10 +161,7 @@ export default {
         grid_column: JSON.stringify({
           columnField: that.master_user.data
         })
-      })).then(res => {
-
-      })
-
+      })).then(res => {})
     },
     onSubmitReload() {
       var that = this;
@@ -228,7 +212,6 @@ export default {
           return false;
         }
       }
-
       //是否是取消操作
       if (!cg) {
         if (!this.master_user.sel) {

@@ -21,6 +21,35 @@ export default {
     }   
     return des;
   },
+  formatData(code, items) {
+    var codeObject = {};
+    for (var i = 0; i < code.length; i++) {
+      codeObject[code[i]] = {
+        max: 0,
+        min: 0
+      }
+    }
+    for (var index in items) {
+      for (var i = 0; i < code.length; i++) {
+        var temp = items[index][code[i]];
+        if (temp > codeObject[code[i]].max) {
+          codeObject[code[i]].max = temp;
+        }
+        if (temp < codeObject[code[i]].min) {
+          codeObject[code[i]].min = temp;
+        }
+      }
+    }
+    for (var index in items) {
+      for (var i = 0; i < code.length; i++) {
+        var codeValue = items[index][code[i]];
+        items[index][code[i] + "_base"] = codeValue;
+        items[index][code[i]] = (codeValue - codeObject[code[i]].min) * 1.0 / (codeObject[code[i]].max - codeObject[code[i]].min);
+        items[index]["item"] = codeObject[code[i]];
+      }
+    }
+    return items;
+  },
   /**************************************时间格式化处理************************************/
   dateFtt(fmt, date) { //author: meizz
     var o = {
@@ -42,7 +71,7 @@ export default {
   toDate(dateString) {
     if (DATE_REGEXP.test(dateString)) {
       var timestamp = dateString.replace(DATE_REGEXP, function($all, $year, $month, $day, $part1, $hour, $minute, $second, $part2, $milliscond) {
-        var date = new Date($year, $month-1, $day, $hour || "00", $minute || "00", $second || "00", $milliscond || "00");
+        var date = new Date($year, $month - 1, $day, $hour || "00", $minute || "00", $second || "00", $milliscond || "00");
         return date.getTime();
       });
       var date = new Date();
@@ -69,60 +98,60 @@ export default {
    * @colField 生成列名的字段
    * @valueField 生成值的字段
    * @emptyValue 默认值 避免有些数据不全
-  */
- row2col(jsonData, idField, colField, valueField, emptyValue) {
-      var result = [], //存储返回的数据
-          idIndexData = {},//存储id在数组中的信息(位置)
-          resultColumns = {},//存储列名数据
-          curRecord = null;//存储当前数据
+   */
+  row2col(jsonData, idField, colField, valueField, emptyValue) {
+    var result = [], //存储返回的数据
+      idIndexData = {}, //存储id在数组中的信息(位置)
+      resultColumns = {}, //存储列名数据
+      curRecord = null; //存储当前数据
 
-      var colFields = colField.split(','); //
+    var colFields = colField.split(','); //
 
-      // 循环整个JSON数组：[{...},{...},{...},...]
-      for (var idx = 0; idx < jsonData.length; idx++) {
+    // 循环整个JSON数组：[{...},{...},{...},...]
+    for (var idx = 0; idx < jsonData.length; idx++) {
 
-          //当前json数据对象
-          var cdata = jsonData[idx];
+      //当前json数据对象
+      var cdata = jsonData[idx];
 
-          //根据主键值，查找到结果数组中的索引号
-          var idValue = cdata[idField];
-          var num = idIndexData[idValue];//获取存储该id的数组索引号
-          if (num != null) {
-              curRecord = result[num];
-          } else {
-              //初始化数据时保持完整的结构信息 避免因为缺乏数据，缺乏指定的列数据
-              curRecord = {};
-          }
-
-          // 指定的colFields列下的数据作为y轴，则取出该列的数据作为y轴即可
-          for (var i in colFields) {
-              var key = colFields[i];
-
-              //获取到colField的值，作为列名
-              var value = cdata[valueField];
-              curRecord[value] = cdata[key];
-
-              //存储列名
-              resultColumns[value] = null;
-              break;
-          }
-
-          //除数据内容外，还需要添加主键数据
-          curRecord[idField] = idValue;
-
-          //对象若为新建 则新增进数组
-          if (num == null) {
-              idIndexData[idValue] = result.push(curRecord) - 1;
-          }
+      //根据主键值，查找到结果数组中的索引号
+      var idValue = cdata[idField];
+      var num = idIndexData[idValue]; //获取存储该id的数组索引号
+      if (num != null) {
+        curRecord = result[num];
+      } else {
+        //初始化数据时保持完整的结构信息 避免因为缺乏数据，缺乏指定的列数据
+        curRecord = {};
       }
 
-      //数据检查 由于是将行数据作为列名，则可能会存在部分行缺少其他列数据，若缺少，则指定默认值
-      for (var i in result) {
-          for (var name in resultColumns) {
-              if (!result[i].hasOwnProperty(name)) result[i][name] = emptyValue;
-          }
+      // 指定的colFields列下的数据作为y轴，则取出该列的数据作为y轴即可
+      for (var i in colFields) {
+        var key = colFields[i];
+
+        //获取到colField的值，作为列名
+        var value = cdata[valueField];
+        curRecord[value] = cdata[key];
+
+        //存储列名
+        resultColumns[value] = null;
+        break;
       }
-      return result;
+
+      //除数据内容外，还需要添加主键数据
+      curRecord[idField] = idValue;
+
+      //对象若为新建 则新增进数组
+      if (num == null) {
+        idIndexData[idValue] = result.push(curRecord) - 1;
+      }
+    }
+
+    //数据检查 由于是将行数据作为列名，则可能会存在部分行缺少其他列数据，若缺少，则指定默认值
+    for (var i in result) {
+      for (var name in resultColumns) {
+        if (!result[i].hasOwnProperty(name)) result[i][name] = emptyValue;
+      }
+    }
+    return result;
   }
 
 

@@ -9,6 +9,7 @@
     <router-link to="/chart">图表管理</router-link>
     <router-link to="/login">登录页面</router-link>
     <router-link to="/editTable">数据视图</router-link>
+    <router-link to="/taskManager">任务管理</router-link>
   </p>
   <router-view/>
 </div>

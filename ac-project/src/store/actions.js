@@ -26,8 +26,10 @@ const actions = {
 
     var qs = require('qs');
     cookie.delete("token");
+    api.BASEURL=user.plat;
+    console.log(api.BASEURL);
     axios.post(api.LOGIN, qs.stringify({
-      scope: " /bigger/grid /openid /bigger/device  /sensor/vehicle /bigger/model /bigger/domain /sensor/vehicle  /bigger/vehicle /bigger/vehicle/info /bigger/event",
+      scope: " /bigger/grid /openid /bigger/device   /sensor/vehicle /bigger/model /bigger/domain /sensor/vehicle  /bigger/vehicle /bigger/vehicle/info /bigger/event /bigger/high_light/result /bigger/high_light/crispr",
       client_secret: "daf2333dd314xfd",
       client_id: "597494481295-dd79sund7ef8kr338t87eqajl27spg7a.apps.cube.com",
       grant_type: "password",

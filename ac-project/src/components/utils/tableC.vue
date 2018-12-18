@@ -5,7 +5,6 @@
     </el-table-column>
     <template v-for="(col ,index) in tableCols">
           <el-table-column v-if="col.type==='normal'" :prop="col.id" :label="col.name"  :show-overflow-tooltip="true">
-
           </el-table-column>
           <el-table-column v-if="col.type==='sort'" :prop="col.id" sortable :label="col.name">
               <template slot-scope="scope">
@@ -68,7 +67,6 @@ export default {
         value: val
       })
     },
-
     handleCurrentChange(val) {
       //  console.log('当期页改变'+val);
       this.eventControl({
@@ -77,7 +75,6 @@ export default {
         value: val
       })
     },
-
   }
 };
 </script>

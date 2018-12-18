@@ -7,13 +7,14 @@
         <el-option v-for="item in velcleStatus" :key="item.id" :label="item.title" :value="item.id">
         </el-option>
       </el-select>
-      <el-select v-model="selectedVehicle" filterable remote reserve-keyword placeholder="请输入关键词" :remote-method="remoteMethod" :loading="loading" size="mini">
+      <el-select v-model="selectedVehicle" filterable remote reserve-keyword placeholder="请输入车辆VIN" :remote-method="remoteMethod" :loading="loading" size="mini">
         <el-option v-for="item in velcles" :key="item.unid" :label="item.vin" :value="item.vin">
         </el-option>
       </el-select>
       <el-date-picker size="mini" v-model="value5" type="datetimerange" :picker-options="pickerOptions2" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" align="right">
       </el-date-picker>
       <el-button type="primary" @click="search" size="mini">查询</el-button>
+      <el-button type="primary" @click="resetSearch" size="mini">重置</el-button>
     </div>
     <div style="text-align: right; vertical-align:middle; font-size: 12px" class="edit">
       <el-dropdown>
@@ -32,7 +33,7 @@
       <ve-chart v-if="isChart" height="800px" :extend="chartExtend" :digit=10 :data-empty="isChartEmpty" :judge-width="editWidth" :data="chartData" :settings="chartSettings" :data-zoom="dataZoom"></ve-chart>
       <ve-heatmap v-if="isHeatmap" :data-empty="isChartEmpty" :data="chartData" :judge-width="editWidth"></ve-heatmap>
       <edit-table ref="table" v-if="isTable" :pagination="pagination" :pageId="pageId" :tableRows="tableRows" :tableCols="tableCols"></edit-table>
-      <ve-scatter v-if="isScatter"   :extend="chartExtend" :digit=10 :data-empty="isChartEmpty" :judge-width="editWidth" :data="chartData" :settings="chartSettings" :data-zoom="dataZoom"></ve-scatter>
+      <ve-scatter v-if="isScatter" :extend="chartExtend" :digit=10 :data-empty="isChartEmpty" :judge-width="editWidth" :data="chartData" :settings="chartSettings" :data-zoom="dataZoom"></ve-scatter>
     </el-col>
     <el-col :span="spanS">
       <edit-page :pageId="pageId"></edit-page>
@@ -83,22 +84,24 @@ export default {
     this.typeArr = ['line', 'histogram', 'pie', 'bar', 'ring', 'waterfall', 'funnel', 'radar']
     this.dataZoom = []
     return {
+      dimension: [],
+      metrics: [],
       cols: [], //图表列
       rowCol: "1", //标识数据展示方向，1正常 2是行转列
       isChartEmpty: true,
       vehicleStatus: '',
       velcleStatus: [{
         id: 1,
-        title: '1'
+        title: ' 停车充电-1'
       }, {
         id: 2,
-        title: '2'
+        title: '行驶充电-2'
       }, {
         id: 3,
-        title: '3'
+        title: '未充电状态-3'
       }, {
         id: 4,
-        title: '4'
+        title: '充电完成-4'
       }, {
         id: '',
         title: 'all'
@@ -184,7 +187,7 @@ export default {
             this.isHeatmap = true;;
           } else if (type == 50) {
             this.isScatter = true;
-              this.setChart(type, true);
+            this.setChart(type, true);
           } else {
             this.isChart = true;
             this.setChart(type, true)
@@ -231,7 +234,6 @@ export default {
       this.isScatter = false;
     },
     remoteMethod: function(query) {
-      console.log(query);
       if (query !== '') {
         if (this.url) {
           var that = this;
@@ -264,16 +266,11 @@ export default {
                 message: '接口加载错误'
               });
             }
-
-
           })
-
-
         }
       } else {
         this.selectedVehicle = '';
       }
-
     },
     loadCookie: function() {
       this.form = cookie.get(this.pageId);
@@ -287,7 +284,7 @@ export default {
             this.isHeatmap = true;
           } else if (index == 50) {
             this.isScatter = true;
-              this.setChart(index, true);
+            this.setChart(index, true);
           } else {
             this.isChart = true;
             this.setChart(index, true);
@@ -302,7 +299,10 @@ export default {
           this.cols = [];
           this.cols = this.cols.concat(this.form.x);
           this.cols = this.cols.concat(this.form.y)
+          console.log('test', this.cols);
           this.chartData.columns = this.cols;
+          this.x = this.form.x;
+          //  this.metrics=this.form.y;
 
         }
         if (this.form.rowCol) {
@@ -324,7 +324,6 @@ export default {
           this.value5.push(utils.toDate(search.value5[0]));
           this.value5.push(utils.toDate(search.value5[1]));
           //  this.value5 = search.value5;
-
         }
       }
     },
@@ -332,13 +331,14 @@ export default {
     setChart(index, isZoom) {
       this.dataZoom = [];
       isZoom = false;
-
       if (index == 0 || index == 1 || index == 3) {
         isZoom = true;
         this.dataZoom = [{
           type: 'slider',
-          start: 0,
-          end: 20
+          filterMode: 'weakFilter',
+        }, {
+          type: 'inside',
+          filterMode: 'weakFilter',
         }]
       }
       this.chartSettings = {
@@ -354,7 +354,6 @@ export default {
     search: function() {
       var start = null;
       var end = null;
-
       if (this.value5 && this.value5.length == 2) {
         start = utils.dateFtt("yyyy-MM-ddThh:mm:ss", this.value5[0]);
         end = utils.dateFtt("yyyy-MM-ddThh:mm:ss", this.value5[1]);
@@ -390,9 +389,7 @@ export default {
           vin: that.selectedVehicle,
           status: that.vehicleStatus,
           field: fields.join(',')
-
         }
-
       }
       var qs = require('qs');
       axios.get(url, {
@@ -410,28 +407,61 @@ export default {
         var data = res.data.collection;
         that.pagination.total = res.data.count; //data.length;
         var arTemp = [];
-
         if (that.rowCol == 1) {
           that.chartExtend = { //线平滑化
             series: {
               smooth: false
-            }
+            },
+            tooltip: {
+              formatter: function(params, ticket, callback) {
 
+                let res = params[0].name;
+                var item = that.chartData.rows[params[0].dataIndex];
+                res += '<br/>' + item.datime_end;
+
+                //console.log(params);
+                for (let i = 0, l = params.length; i < l; i++) {
+                  var item = that.chartData.rows[params[i].dataIndex];
+                  if (item[params[i].seriesName + "_base"]) {
+                    res += '<br/>' + params[i].marker + params[i].seriesName + ' : ' + item[params[i].seriesName + "_base"];
+                  } else {
+                    res += '<br/>' + params[i].marker + params[i].seriesName + ' : ' + item[params[i].seriesName];
+                  }
+                }
+                return res;
+              }
+            }
           };
           that.tableRows = data.map(item => {
             try {
               var set = JSON.parse(item.dataset);
+              var minSet = JSON.parse(item.dataset_min);
+              var maxSet = JSON.parse(item.dataset_max);
+              var avgSet = JSON.parse(item.dataset_avg);
+              var sdSet = JSON.parse(item.dataset_std);
+
               for (var i in set) {
                 item[i + ''] = set[i];
                 item['code' + i] = i;
-                item.datime_end = utils.toDate(item.datime_start).getTime();
+                item['max' + i] = maxSet[i];
+                item['min' + i] = minSet[i];
+                item['avg' + i] = avgSet[i];
+                item['sd' + i] = sdSet[i];
+                item.datime_estart = utils.toDate(item.datime_start).getTime();
               }
             } catch (ex) {
+              console.log("item", item.dataset);
+              console.log("min", item.dataset_min);
+              console.log("max", item.dataset_max);
+              console.log("avg", item.dataset_avg);
               console.log(ex);
             }
             return item;
           });
           arTemp = that.tableRows;
+          console.log("form.y", that.form.y)
+          arTemp = utils.formatData(that.form.y, arTemp);
+          console.log(arTemp);
         } else if (this.rowCol == 2) { //按列计算，需要格式化数据项
           that.chartExtend = { //线平滑化
             grid: {             
@@ -441,13 +471,16 @@ export default {
               smooth: false
             }
           };
-          for (var column in that.form.x) {
+          for (var column in that.x) {
             arTemp.push({
-              item: that.form.x[column]
+              item: that.x[column]
             });
           }
           that.chartData.columns = [];
           that.chartData.columns.push("item");
+          that.form.x = [];
+          that.form.x.push("item");
+          that.form.y = [];
           data.forEach(item => {
             try {
               var set = JSON.parse(item.dataset);
@@ -455,6 +488,7 @@ export default {
                 arTemp[i][item.datime_start] = set[arTemp[i].item];
               }
               that.chartData.columns.push(item.datime_start);
+              that.form.y.push(item.datime_start);
             } catch (ex) {
               console.log(ex)
             }
@@ -473,6 +507,8 @@ export default {
               console.log(ex)
             }
           });  */
+
+          that.setChart(0, true);
           console.log("格式化数组", arTemp);
         }
 
@@ -559,6 +595,11 @@ export default {
       this.spanS = 12;
       this.loadCookie();
 
+    },
+    resetSearch() {
+      this.vehicleStatus = null;
+      this.selectedVehicle = '';
+      this.value5 = [];
     }
   }
 }

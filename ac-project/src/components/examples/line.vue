@@ -1,5 +1,4 @@
 <template>
-
   <el-row>
     <el-col :span="24" class="content">
       <echarts-t :pageId="page1"></echarts-t>
@@ -10,10 +9,7 @@
     <el-col :span="24" class="content">
       <echarts-t :pageId="page3"></echarts-t>
     </el-col>
-
-
   </el-row>
-
 </template>
 <script>
 import echartsT from './echartsT'

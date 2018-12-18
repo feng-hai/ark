@@ -38,10 +38,17 @@ const actions = {
 
     var qs = require('qs');
     cookie.delete("token");
+    api.BASEURL = user.plat;
+    axios.defaults.baseURL = api.BASEURL;
+    var client_id = "597494481295-dd79sund7ef8kr338t87eqajl27spg7a.apps.cube.com";
+    if (api.BASEURL == "http://218.75.212.61:8893") {
+      client_id = "597494481295-dd79sund7ef8kr338t87eqajl27spg7a.apps.csrzic.com";
+    }
+
     axios.post(api.LOGIN, qs.stringify({
-      scope: " /bigger/grid /openid /bigger/device  /sensor/vehicle /bigger/model /bigger/domain /sensor/vehicle  /bigger/vehicle /bigger/vehicle/info /bigger/event",
+      scope: " /bigger/grid /openid /bigger/device  /sensor/vehicle /bigger/model /bigger/domain /sensor/vehicle  /bigger/vehicle /bigger/vehicle/info /bigger/event /bigger/national_standard",
       client_secret: "daf2333dd314xfd",
-      client_id: "597494481295-dd79sund7ef8kr338t87eqajl27spg7a.apps.cube.com",
+      client_id: client_id, //"597494481295-dd79sund7ef8kr338t87eqajl27spg7a.apps.csrzic.com",//"597494481295-dd79sund7ef8kr338t87eqajl27spg7a.apps.cube.com",
       grant_type: "password",
       username: user.name,
       password: user.pass

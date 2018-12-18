@@ -2,6 +2,12 @@
 <div>
   <el-row type="flex" justify="center">
     <el-form :model="user" label-width="80px">
+      <el-form-item label="平台">
+        <el-select v-model="user.plat" placeholder="请选择平台">
+          <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value">
+          </el-option>
+        </el-select>
+      </el-form-item>
       <el-form-item label="用户名">
         <el-input v-model="user.name"></el-input>
       </el-form-item>
@@ -26,10 +32,27 @@ export default {
   name: 'app',
   data() {
     return {
+      options: [{
+        label: '舒驰平台',
+        value: 'https://shuchi.wlwltech.com:20443'
+      }, {
+        label: '电池平台',
+        value: 'http://58.213.131.5'
+      }, {
+        label: '公司内部平台',
+        value: 'https://api1.wlwltech.com'
+      }, {
+        label: '上汽',
+        value: 'https://shangqi.wlwltech.com'
+      }, {
+        label: '中车',
+        value: 'http://218.75.212.61:8893'
+      }],
       msg: 'Welcome to Your Vue.js App',
       user: {
         name: '',
-        pass: ''
+        pass: '',
+        plat: ''
       }
     }
   },
@@ -53,7 +76,6 @@ export default {
         path: "/chart"
       });
     }
-
   },
   methods: {
 

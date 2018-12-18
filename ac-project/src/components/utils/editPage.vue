@@ -1,5 +1,5 @@
 <template>
-<el-form ref="form" :model="form" label-width="80px" size="mini">
+<el-form ref="ruleForm" :model="form" label-width="80px" size="mini">
   <el-form-item label="图表名称">
     <el-input v-model="form.name"></el-input>
   </el-form-item>
@@ -41,7 +41,7 @@
     </el-select>
   </el-form-item>
   <el-form-item label="维度类型" v-if="form.resource!=30">
-    <el-select v-model="form.xAxisType"  placeholder="请选择类型" @change="changeX">
+    <el-select v-model="form.xAxisType" placeholder="请选择类型" @change="changeX">
       <el-option v-for="item in xAxisTypes" :key="item.id" :label="item.name" :value="item.id">
       </el-option>
     </el-select>
@@ -52,7 +52,6 @@
       </el-option>
     </el-select>
   </el-form-item>
-
   <el-form-item label="列数据" v-if="form.resource==30">
     <el-select v-model="form.columns" @change="changeTableColumn" multiple placeholder="请选择列表要展示的列">
       <el-option v-for="item in functionsItems" :key="item.id" :label="item.name" :value="item.id">
@@ -62,6 +61,7 @@
   <el-form-item>
     <el-button type="primary" @click="onSubmitReload">恢复</el-button>
     <el-button type="primary" @click="onSubmit">保存</el-button>
+    <el-button type="primary" @click="resetForm('ruleForm')">重置</el-button>
     <el-button>取消</el-button>
   </el-form-item>
 </el-form>
@@ -102,7 +102,7 @@ export default {
       ],
       functionsItems: [],
       form: {
-        xAxisType:'category',
+        xAxisType: 'category',
         rowCol: '1',
         name: '',
         region: '',
@@ -195,7 +195,7 @@ export default {
         var url = null;
         let funsItems = JSON.parse(res.data.grid_column).columnField.map(item => {
           if (url == null && item.api_uri) {
-            url = item.api_uri;
+            url = utils.GetUrlRelativePath(item.api_uri);
           }
           return {
             name: item.title,
@@ -209,6 +209,26 @@ export default {
           funsItems.push({
             id: i + '',
             name: i + 'C',
+            type: "normal"
+          })
+          funsItems.push({
+            id: 'max' + i,
+            name: 'max' + i,
+            type: "normal"
+          })
+          funsItems.push({
+            id: 'min' + i,
+            name: 'min' + i,
+            type: "normal"
+          })
+          funsItems.push({
+            id: 'avg' + i,
+            name: 'avg' + i,
+            type: "normal"
+          })
+          funsItems.push({
+            id: 'sd' + i,
+            name: 'sd' + i,
             type: "normal"
           })
         }
@@ -229,15 +249,15 @@ export default {
       this.setFunction(item);
     },
     changeX(item) {
-      this.form.cols = [];
-      this.form.cols.push(this.form.x);
-      this.form.cols = this.form.cols.concat(this.form.y)
+      //this.form.cols = [];
+      //this.form.cols = this.form.x;
+      //this.form.cols = this.form.cols.concat(this.form.y)
 
     },
     changeY(item) {
-      this.form.cols = [];
-      this.form.cols.push(this.form.x);
-      this.form.cols = this.form.cols.concat(this.form.y)
+      //  this.form.cols = [];
+      //  this.form.cols = this.form.x;
+      //this.form.cols = this.form.cols.concat(this.form.y)
     },
     changeTableColumn(vel) {
 
@@ -252,6 +272,28 @@ export default {
       this.form.cols = [];
       this.form.cols.push(this.form.x);
       this.form.cols = this.form.cols.concat(this.form.y)
+
+    },
+    resetForm(formName) {
+
+      this.form = {
+        xAxisType: 'category',
+        rowCol: '1',
+        name: '',
+        region: '',
+        date1: '',
+        date2: '',
+        delivery: false,
+        type: [],
+        resource: '',
+        desc: '',
+        x: [],
+        y: [],
+        columns: [],
+        tableCols: [],
+        url: '',
+        cols: []
+      }
 
     }
   }
