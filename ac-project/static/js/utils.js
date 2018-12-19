@@ -12,7 +12,9 @@ export default {
   },
   extend(des, src, override) {   
     if (src instanceof Array) {       
-      for (var i = 0, len = src.length; i < len; i++)             extend(des, src[i], override);   
+      for (var i = 0, len = src.length; i < len; i++) {
+        extend(des, src[i], override);  
+      } 
     }   
     for (var i in src) {       
       if (override || !(i in des)) {           
@@ -32,20 +34,26 @@ export default {
     for (var index in items) {
       for (var i = 0; i < code.length; i++) {
         var temp = items[index][code[i]];
-        if (temp > codeObject[code[i]].max) {
-          codeObject[code[i]].max = temp;
-        }
-        if (temp < codeObject[code[i]].min) {
-          codeObject[code[i]].min = temp;
+        if (!isNaN(temp)) {
+          temp = temp * 1;
+          if (temp > codeObject[code[i]].max) {
+            codeObject[code[i]].max = temp;
+          }
+          if (temp < codeObject[code[i]].min) {
+            codeObject[code[i]].min = temp;
+          }
         }
       }
     }
     for (var index in items) {
       for (var i = 0; i < code.length; i++) {
         var codeValue = items[index][code[i]];
-        items[index][code[i] + "_base"] = codeValue;
-        items[index][code[i]] = (codeValue - codeObject[code[i]].min) * 1.0 / (codeObject[code[i]].max - codeObject[code[i]].min);
-        items[index]["item"] = codeObject[code[i]];
+        if (!isNaN(codeValue)) {
+          codeValue = codeValue * 1;
+          items[index][code[i] + "_base"] = codeValue;
+          items[index][code[i]] = (codeValue - codeObject[code[i]].min) * 1.0 / (codeObject[code[i]].max - codeObject[code[i]].min);
+          items[index]["item" + code[i]] = codeObject[code[i]];
+        }
       }
     }
     return items;
@@ -152,7 +160,18 @@ export default {
       }
     }
     return result;
+  },
+  formatHistoryData(datas) {
+    var filds = datas[0].column;
+    var tempDatas = [];
+    for (var i = 1; i < datas.length; i++) {
+      var item = {};
+      var itemdata = datas[i].column;
+      for (var j = 0; j < itemdata.length; j++) {
+        item[filds[j]] = itemdata[j];
+      }
+      tempDatas.push(item);
+    }
+    return tempDatas;
   }
-
-
 }

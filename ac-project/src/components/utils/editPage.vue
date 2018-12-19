@@ -102,6 +102,7 @@ export default {
       ],
       functionsItems: [],
       form: {
+        items: [],
         xAxisType: 'category',
         rowCol: '1',
         name: '',
@@ -128,7 +129,6 @@ export default {
       'getRows',
       'getFuns',
       'getFunctionItem',
-
     ])
   },
   created() {
@@ -232,7 +232,6 @@ export default {
             type: "normal"
           })
         }
-
         that.functionsItems = funsItems;
         if (this.form.columns) {
           this.changeTableColumn(this.form.columns)
@@ -254,18 +253,16 @@ export default {
       //this.form.cols = this.form.cols.concat(this.form.y)
 
     },
-    changeY(item) {
-      //  this.form.cols = [];
-      //  this.form.cols = this.form.x;
-      //this.form.cols = this.form.cols.concat(this.form.y)
+    changeY(vel) {
+      var items = this.functionsItems.filter(item => {
+        return vel.contains(item.id);
+      })
+      this.form.items = items;
     },
     changeTableColumn(vel) {
-
       var item = this.functionsItems.filter(item => {
         return vel.contains(item.id);
       })
-
-
       this.form.tableCols = item;
     },
     saveXY() {
@@ -310,4 +307,5 @@ Array.prototype.contains = function(needle) {
 .content {
   margin-bottom: 10px;
   float: left;
-}</style>
+}
+</style>

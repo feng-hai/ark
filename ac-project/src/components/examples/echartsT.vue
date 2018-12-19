@@ -37,6 +37,7 @@
     </el-col>
     <el-col :span="spanS">
       <edit-page :pageId="pageId"></edit-page>
+
     </el-col>
   </el-row>
 </div>
@@ -48,7 +49,7 @@ import cookie from './../../../static/js/cookie'
 import utils from './../../../static/js/utils'
 import axios from 'axios'
 import 'v-charts/lib/style.css'
-
+import historySelects from './../selectsComponents/historyForVehSelects.vue'
 import api from './../../httpConfig/api'
 import {
   mapGetters,
@@ -170,11 +171,10 @@ export default {
       }
     }
   },
-  watch: {
+  watch: {　　
+    deep: true,
     eventValue(newVal, oldVal) {
-
       if (this.eventType == 0) { //数据展示形式发生变化
-
         var type = newVal.split('_')[1];
         if (this.currentId == this.pageId) { //是否是本组件的事件
           this.hideAll();
@@ -223,7 +223,8 @@ export default {
   },
   components: {
     'edit-page': editPage,
-    'edit-table': editTable
+    'edit-table': editTable,
+    'history-selects': historySelects
   },
 
   methods: {
@@ -321,8 +322,12 @@ export default {
           this.vehicleStatus = search.vehicleStatus;
           console.log("dd", search.value5);
           this.value5 = [];
-          this.value5.push(utils.toDate(search.value5[0]));
-          this.value5.push(utils.toDate(search.value5[1]));
+          if (search.value5[0]) {
+
+
+            this.value5.push(utils.toDate(search.value5[0]));
+            this.value5.push(utils.toDate(search.value5[1]));
+          }
           //  this.value5 = search.value5;
         }
       }

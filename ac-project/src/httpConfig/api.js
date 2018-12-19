@@ -6,6 +6,7 @@ const BASEURL = 'http://sccloud.bestbus.cn:20080'
 const FUNCTIONITEM = "/bigger/grid"
 const VEHICLE = 'bigger/vehicle/info'
 const TASKRESULT = '/bigger/high_light/crispr'
+const HISTORYDATA='/sensor/hydra'
 
 export default {
   LOGIN,
@@ -13,5 +14,6 @@ export default {
   BASEURL,
   FUNCTIONITEM,
   VEHICLE,
-  TASKRESULT
+  TASKRESULT,
+  HISTORYDATA
 }

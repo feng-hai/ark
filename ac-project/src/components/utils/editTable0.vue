@@ -102,12 +102,17 @@ export default {
         unid: '',
       },
       munus: [{
-        unid: 'http://58.213.131.5/bigger/high_light/crispr/metadata',
-        title: '车辆分析数据'
-      }, {
-        unid: 'http://58.213.131.5/bigger/high_light/result/metadata',
-        title: '任务管理'
-      }],
+          unid: 'http://58.213.131.5/bigger/high_light/crispr/metadata',
+          title: '车辆分析数据'
+        }, {
+          unid: 'http://58.213.131.5/bigger/high_light/result/metadata',
+          title: '任务管理'
+        },
+        {
+          unid: '/bigger/national_standard',
+          title: '国标明细'
+        }
+      ],
       selectedMunus: '',
       master_user: {
         sel: null, //选中行
@@ -127,6 +132,12 @@ export default {
     selectedMunus(newVal, oldVal) {
       var that = this;
       axios.get(newVal).then(res => {
+        res.data = res.data.map(item => {
+          if (item.alias) {
+            item.field = item.alias;
+          }
+          return item;
+        })
         that.master_user.data = res.data;
         that.readMasterUser();
       })

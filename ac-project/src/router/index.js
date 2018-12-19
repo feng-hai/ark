@@ -5,6 +5,7 @@ import line from '@/components/examples/line'
 import store from '@/components/examples/store'
 import taskManager from '@/components/examples/taskManager'
 import editTable0 from '@/components/utils/editTable0'
+import line2 from '@/components/examples/line2'
 Vue.use(Router)
 
 export default new Router({
@@ -31,6 +32,11 @@ export default new Router({
       path: '/taskManager',
       name: 'taskManager',
       component: taskManager
+    },
+    {
+      path:'/historyData',
+      name:'historyData',
+      component:line2
     }
 
   ]

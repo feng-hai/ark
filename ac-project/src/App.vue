@@ -10,6 +10,7 @@
     <router-link to="/login">登录页面</router-link>
     <router-link to="/editTable">数据视图</router-link>
     <router-link to="/taskManager">任务管理</router-link>
+    <router-link to="/historyData">历史数据</router-link>
   </p>
   <router-view/>
 </div>
