@@ -12,6 +12,7 @@
   </el-date-picker>
   <el-button type="primary" @click="sreachHistoryData" size="mini">查询</el-button>
   <el-button type="primary" @click="resetSearch" size="mini">重置</el-button>
+  <span>{{total}}</span>
 </div>
 </template>
 <script>
@@ -41,22 +42,31 @@ export default {
   data() {
     return {
       itemNums: [{
-        id: 50,
-        name: 50
+          id: 50,
+          name: "50"
 
-      }, {
-        id: 100,
-        name: 100,
-      }, {
-        id: 500,
-        name: 500
-      }, {
-        id: 1000,
-        name: 1000
-      }, {
-        id: 100000,
-        name: 10000
-      }],
+        }, {
+          id: 100,
+          name: "100",
+        }, {
+          id: 500,
+          name: "500"
+        }, {
+          id: 1000,
+          name: " 1 k"
+        }, {
+          id: 10000,
+          name: "10 k"
+        },
+        {
+          id: 100000,
+          name: "100 k"
+        }, {
+          id: 150000,
+          name: "150 k"
+        }
+      ],
+      total: 0,
       itemNum: 100,
       url: '', //查询历史数据的url
       loading: false,
@@ -111,8 +121,7 @@ export default {
   created() {
     this.loadCookie();
   },
-  mounted() {
-  },
+  mounted() {},
   methods: {
     ...mapMutations([
       "eventControl"
@@ -137,7 +146,6 @@ export default {
           this.value5.push(utils.toDate(search.value5[1]));
         }
       }
-
     },
     sreachHistoryData() {
       //查询车辆数据        console.log("fffffff")''
@@ -152,14 +160,25 @@ export default {
       if (this.selectedVehicle.length > 0) {
         url = url + "/" + this.selectedVehicle;
       }
-      var param = {
-        order: "asc",
-        date_from: start,
-        date_to: end,
-        number: that.itemNum,
-        page_id: 0,
-        field: this.fields.join(',')
-      };
+      that.datas = [];
+      this.searchHistory(url, start, end, that.itemNum)
+      // var alldata = [];
+      // var pageNum = Math.ceil(that.itemNum / 5000);
+      //
+      // var pageSize = 5000
+      // if (that.itemNum < 5000) {
+      //   pageSize = that.itemNum;
+      // }
+      // console.log("pagenum", pageNum);
+      // //  for (var i = 0; i < pageNum; i++) {
+      // var param = {
+      //   order: "asc",
+      //   date_from: start,
+      //   date_to: end,
+      //   number: that.itemNum,
+      //   page_id: 0,
+      //   field: this.fields.join(',')
+      // };
       // if (this.isTable) {
       //   param = {
       //     order: "asc",
@@ -172,29 +191,85 @@ export default {
       //     field: fields.join(',')
       //   }
       // }
+      // var qs = require('qs');
+      // axios.get(url, {
+      //   params: param
+      // }).then(res => {
+      //   var dateArray = [];
+      //   dateArray.push(start);
+      //   dateArray.push(end);
+      //   cookie.set(that.pageId + "search", JSON.stringify({
+      //     selectedVehicle: that.selectedVehicle,
+      //     value5: dateArray
+      //   }));
+      //   var rows = res.data.rows;
+      //   var newData = utils.formatHistoryData(rows);
+      //   var newData_for = utils.formatData(this.form.y, newData);
+      //
+      //   this.$notify({
+      //     title: '成功',
+      //     message: '成功加载数据',
+      //     type: 'success'
+      //   });
+      //   alldata = alldata.concat(newData_for);
+      //
+      //   that.total = alldata.length;
+      //   //  console.log('formatter',newData_for);
+      //   that.eventControl({
+      //     pageId: this.pageId,
+      //     type: 5,
+      //     value: alldata
+      //   })
+      // });
+      //}
+    },
+    searchHistory(url, start, end, num) {
+      var that = this;
+      var param = {
+        order: "asc",
+        date_from: start,
+        date_to: end,
+        number: num,
+        page_id: 0,
+        field: this.fields.join(',')
+      };
       var qs = require('qs');
       axios.get(url, {
         params: param
       }).then(res => {
+
+        //  console.log(res)
         var dateArray = [];
-        dateArray.push(start);
-        dateArray.push(end);
-        cookie.set(that.pageId + "search", JSON.stringify({
-          selectedVehicle: that.selectedVehicle,
-          value5: dateArray
-        }));
+        // dateArray.push(start);
+        // dateArray.push(end);
+        // cookie.set(that.pageId + "search", JSON.stringify({
+        //   selectedVehicle: that.selectedVehicle,
+        //   value5: dateArray
+        // }));
         var rows = res.data.rows;
         var newData = utils.formatHistoryData(rows);
         var newData_for = utils.formatData(this.form.y, newData);
-        //  console.log('formatter',newData_for);
-        this.eventControl({
+
+
+        if (res.data.hasNext && newData_for.length == num) {
+          end = utils.dateFtt("yyyy-MM-ddThh:mm:ss", utils.toDate(newData_for[newData_for.length - 1].DATIME_RX));;
+          that.searchHistory(url, start, end, num);
+        } else {}
+        this.$notify({
+          title: '成功',
+          message: '成功加载数据',
+          type: 'success'
+        });
+        that.datas = that.datas.concat(newData_for);
+        //console.log(newData_for);
+        that.total = that.datas.length;
+        that.eventControl({
           pageId: this.pageId,
           type: 5,
-          value: newData_for
+          value: that.datas
         })
       });
     },
-
     search(query) {
       var that = this;
       var qs = require('qs');

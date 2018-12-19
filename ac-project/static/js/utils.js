@@ -12,7 +12,7 @@ export default {
   },
   extend(des, src, override) {   
     if (src instanceof Array) {       
-      for (var i = 0, len = src.length; i < len; i++) {
+      for (var i = 0, len = src.length; i < len; i++)  {
         extend(des, src[i], override);  
       } 
     }   
@@ -27,8 +27,8 @@ export default {
     var codeObject = {};
     for (var i = 0; i < code.length; i++) {
       codeObject[code[i]] = {
-        max: 0,
-        min: 0
+        max: -1,
+        min: -1
       }
     }
     for (var index in items) {
@@ -38,6 +38,9 @@ export default {
           temp = temp * 1;
           if (temp > codeObject[code[i]].max) {
             codeObject[code[i]].max = temp;
+            if (codeObject[code[i]].min == -1) {
+              codeObject[code[i]].min = temp;
+            }
           }
           if (temp < codeObject[code[i]].min) {
             codeObject[code[i]].min = temp;
@@ -51,7 +54,11 @@ export default {
         if (!isNaN(codeValue)) {
           codeValue = codeValue * 1;
           items[index][code[i] + "_base"] = codeValue;
-          items[index][code[i]] = (codeValue - codeObject[code[i]].min) * 1.0 / (codeObject[code[i]].max - codeObject[code[i]].min);
+          if (codeObject[code[i]].min == codeObject[code[i]].max) {
+            items[index][code[i]] = 1;
+          } else {
+            items[index][code[i]] = (codeValue - codeObject[code[i]].min) * 1.0 / (codeObject[code[i]].max - codeObject[code[i]].min);
+          }
           items[index]["item" + code[i]] = codeObject[code[i]];
         }
       }

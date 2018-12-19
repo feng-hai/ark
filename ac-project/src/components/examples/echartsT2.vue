@@ -113,7 +113,9 @@ export default {
       },
       chartExtend: { //线平滑化
         series: {
-          smooth: false
+          smooth: false,
+
+          symbol: 'none'
         }
       },
       isTable: false,
@@ -150,7 +152,8 @@ export default {
           var that = this;
           this.chartExtend = { //线平滑化
             series: {
-              smooth: false
+              smooth: false,
+              symbol: 'none'
             },
             tooltip: {
               formatter: function(params, ticket, callback) {
