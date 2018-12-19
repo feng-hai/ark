@@ -22,11 +22,13 @@ axios.defaults.transformRequest = function (data) {
 // http request 拦截器
 axios.interceptors.request.use(
   config => {
+    axios.defaults.baseURL = apiURL.BASEURL;  // 默认地址
     //config.data = JSON.stringify(config.data);
   //  config.headers['Content-Type'] = 'application/json;charset=UTF-8';
     //判断是否存在ticket，如果存在的话，则每个http header都加上ticket
     if (cookie.get("token")) {
         //用户每次操作，都将cookie设置成2小时
+        axios.defaults.baseURL = cookie.get("BASEURL");  // 默认地址
         cookie.set("token",cookie.get("token") ,1/12)
         cookie.set("name",cookie.get("name") ,1/12)
 　　　　 config.headers["Authorization"] ='bearer '+ cookie.get("token");

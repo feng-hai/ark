@@ -59,6 +59,7 @@ const actions = {
       console.log(cookie);
       cookie.set("token", res.data.split('=')[1].split('&')[0]);
       cookie.set("name", token);
+      cookie.set("BASEURL",user.plat)
       console.log(cookie.get("token"))
       user.token = token;
       context.commit("setUser", user);

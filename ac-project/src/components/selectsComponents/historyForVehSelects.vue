@@ -5,7 +5,7 @@
     </el-option>
   </el-select>
   <el-select v-model="selectedVehicle" filterable remote reserve-keyword placeholder="请输入车辆VIN" :remote-method="sreachVehiclesData" :loading="loading" size="mini">
-    <el-option v-for="item in velcles" :key="item.unid" :label="item.vin" :value="item.unid">
+    <el-option v-for="item in velcles" :key="item.unid" :label="item.vin" :value="item.vin">
     </el-option>
   </el-select>
   <el-date-picker size="mini" v-model="value5" type="datetimerange" :picker-options="pickerOptions2" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" align="right">
@@ -112,7 +112,6 @@ export default {
     this.loadCookie();
   },
   mounted() {
-
   },
   methods: {
     ...mapMutations([
@@ -128,6 +127,15 @@ export default {
         this.cols = this.cols.concat(this.form.x);
         this.cols = this.cols.concat(this.form.y)
         this.fields = this.cols;
+      }
+      var search = JSON.parse(cookie.get(this.pageId + "search"));
+      if (search) {
+        this.selectedVehicle = search.selectedVehicle;
+        this.value5 = [];
+        if (search.value5[0]) {
+          this.value5.push(utils.toDate(search.value5[0]));
+          this.value5.push(utils.toDate(search.value5[1]));
+        }
       }
 
     },
@@ -168,6 +176,13 @@ export default {
       axios.get(url, {
         params: param
       }).then(res => {
+        var dateArray = [];
+        dateArray.push(start);
+        dateArray.push(end);
+        cookie.set(that.pageId + "search", JSON.stringify({
+          selectedVehicle: that.selectedVehicle,
+          value5: dateArray
+        }));
         var rows = res.data.rows;
         var newData = utils.formatHistoryData(rows);
         var newData_for = utils.formatData(this.form.y, newData);
@@ -179,41 +194,44 @@ export default {
         })
       });
     },
+
+    search(query) {
+      var that = this;
+      var qs = require('qs');
+      this.loading = true;
+      var that = this;
+      axios.get(api.VEHICLE, {
+        params: {
+          order: "asc",
+          page_id: 0,
+          page_size: 5,
+          q: query
+        }
+      }).then(res => {
+        that.velcles = res.data;
+        that.loading = false;
+      }).catch(ex => {
+        that.loading = false;
+        if (ex.status = 404) {
+          that.velcles = [];
+          this.$notify({
+            title: '警告',
+            message: '没有找到对应的数据',
+            type: 'warning'
+          });
+        } else {
+          this.$notify.error({
+            title: '错误',
+            message: '接口加载错误'
+          });
+        }
+      })
+    },
     sreachVehiclesData(query) { //查询车辆数据
       //  console.log(query);
       if (query !== '') {
         if (this.url) {
-          var that = this;
-          var qs = require('qs');
-          this.loading = true;
-          var that = this;
-          axios.get(api.VEHICLE, {
-            params: {
-              order: "asc",
-              page_id: 0,
-              page_size: 5,
-              q: query
-            }
-          }).then(res => {
-            that.velcles = res.data;
-            that.loading = false;
-
-          }).catch(ex => {
-            that.loading = false;
-            if (ex.status = 404) {
-              that.velcles = [];
-              this.$notify({
-                title: '警告',
-                message: '没有找到对应的数据',
-                type: 'warning'
-              });
-            } else {
-              this.$notify.error({
-                title: '错误',
-                message: '接口加载错误'
-              });
-            }
-          })
+          this.search(query);
         }
       } else {
         this.selectedVehicle = '';

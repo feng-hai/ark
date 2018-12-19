@@ -300,7 +300,7 @@ export default {
           this.cols = [];
           this.cols = this.cols.concat(this.form.x);
           this.cols = this.cols.concat(this.form.y)
-          console.log('test', this.cols);
+
           this.chartData.columns = this.cols;
           this.x = this.form.x;
           //  this.metrics=this.form.y;
@@ -320,7 +320,7 @@ export default {
         if (search) {
           this.selectedVehicle = search.selectedVehicle;
           this.vehicleStatus = search.vehicleStatus;
-          console.log("dd", search.value5);
+
           this.value5 = [];
           if (search.value5[0]) {
 

@@ -321,7 +321,7 @@ export default {
           filterMode: 'weakFilter',
         }]
       }
-    //  console.log("map", this.labelMapItems);
+      //  console.log("map", this.labelMapItems);
       this.chartSettings = {
         type: this.typeArr[index],
         scale: [true, true],
