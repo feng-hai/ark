@@ -12,7 +12,7 @@
   </el-date-picker>
   <el-button type="primary" @click="sreachHistoryData" size="mini">查询</el-button>
   <el-button type="primary" @click="resetSearch" size="mini">重置</el-button>
-  <span>{{total}}</span>
+  <span>数据总数：{{total}} {{loadText}}</span>
 </div>
 </template>
 <script>
@@ -70,6 +70,7 @@ export default {
       itemNum: 100,
       url: '', //查询历史数据的url
       loading: false,
+      loadText:'正在加载...',
       selectedVehicle: '', //选择的车辆数据
       velcles: [], //保存车辆集合，前5条
       fields: [], //历史菜单数据
@@ -148,6 +149,7 @@ export default {
       }
     },
     sreachHistoryData() {
+       this.loadText="正在加载...";
       //查询车辆数据        console.log("fffffff")''
       var start = null;
       var end = null;
@@ -162,66 +164,14 @@ export default {
       }
       that.datas = [];
       this.searchHistory(url, start, end, that.itemNum)
-      // var alldata = [];
-      // var pageNum = Math.ceil(that.itemNum / 5000);
-      //
-      // var pageSize = 5000
-      // if (that.itemNum < 5000) {
-      //   pageSize = that.itemNum;
-      // }
-      // console.log("pagenum", pageNum);
-      // //  for (var i = 0; i < pageNum; i++) {
-      // var param = {
-      //   order: "asc",
-      //   date_from: start,
-      //   date_to: end,
-      //   number: that.itemNum,
-      //   page_id: 0,
-      //   field: this.fields.join(',')
-      // };
-      // if (this.isTable) {
-      //   param = {
-      //     order: "asc",
-      //     page_id: that.pagination.currentPage - 1,
-      //     page_size: that.pagination.pageSize,
-      //     datime_start: start,
-      //     datime_end: end,
-      //     vin: that.selectedVehicle,
-      //     status: that.vehicleStatus,
-      //     field: fields.join(',')
-      //   }
-      // }
-      // var qs = require('qs');
-      // axios.get(url, {
-      //   params: param
-      // }).then(res => {
-      //   var dateArray = [];
-      //   dateArray.push(start);
-      //   dateArray.push(end);
-      //   cookie.set(that.pageId + "search", JSON.stringify({
-      //     selectedVehicle: that.selectedVehicle,
-      //     value5: dateArray
-      //   }));
-      //   var rows = res.data.rows;
-      //   var newData = utils.formatHistoryData(rows);
-      //   var newData_for = utils.formatData(this.form.y, newData);
-      //
-      //   this.$notify({
-      //     title: '成功',
-      //     message: '成功加载数据',
-      //     type: 'success'
-      //   });
-      //   alldata = alldata.concat(newData_for);
-      //
-      //   that.total = alldata.length;
-      //   //  console.log('formatter',newData_for);
-      //   that.eventControl({
-      //     pageId: this.pageId,
-      //     type: 5,
-      //     value: alldata
-      //   })
-      // });
-      //}
+      //  console.log(res)
+      var dateArray = [];
+      dateArray.push(start);
+      dateArray.push(end);
+      cookie.set(that.pageId + "search", JSON.stringify({
+        selectedVehicle: that.selectedVehicle,
+        value5: dateArray
+      }));
     },
     searchHistory(url, start, end, num) {
       var that = this;
@@ -238,36 +188,33 @@ export default {
         params: param
       }).then(res => {
 
-        //  console.log(res)
-        var dateArray = [];
-        // dateArray.push(start);
-        // dateArray.push(end);
-        // cookie.set(that.pageId + "search", JSON.stringify({
-        //   selectedVehicle: that.selectedVehicle,
-        //   value5: dateArray
-        // }));
+
         var rows = res.data.rows;
         var newData = utils.formatHistoryData(rows);
-        var newData_for = utils.formatData(this.form.y, newData);
-
-
-        if (res.data.hasNext && newData_for.length == num) {
-          end = utils.dateFtt("yyyy-MM-ddThh:mm:ss", utils.toDate(newData_for[newData_for.length - 1].DATIME_RX));;
-          that.searchHistory(url, start, end, num);
-        } else {}
-        this.$notify({
-          title: '成功',
-          message: '成功加载数据',
-          type: 'success'
-        });
-        that.datas = that.datas.concat(newData_for);
-        //console.log(newData_for);
+        that.datas = that.datas.concat(newData);
         that.total = that.datas.length;
-        that.eventControl({
-          pageId: this.pageId,
-          type: 5,
-          value: that.datas
-        })
+        if (res.data.hasNext && newData.length == num) {
+          end = utils.dateFtt("yyyy-MM-ddThh:mm:ss", utils.toDate(newData[newData.length - 1].DATIME_RX));;
+          that.searchHistory(url, start, end, num);
+        } else {
+
+          var newData_for = utils.formatData(that.form.y, that.datas);
+          //console.log(newData_for);
+
+          that.eventControl({
+            pageId: this.pageId,
+            type: 5,
+            value: newData_for
+          })
+           this.loadText="加载完成_—_";
+          this.$notify({
+            title: '成功',
+            message: '成功加载数据-加载完成',
+            type: 'success'
+          });
+        }
+
+
       });
     },
     search(query) {
