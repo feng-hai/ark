@@ -23,43 +23,50 @@ export default {
     }   
     return des;
   },
-  formatData(code, items) {
+  formatData(code, items, formates) {
     var codeObject = {};
     for (var i = 0; i < code.length; i++) {
       codeObject[code[i]] = {
-        max: -1,
-        min: -1
+        max: -100000,
+        min: -100000
       }
     }
     for (var index in items) {
       for (var i = 0; i < code.length; i++) {
-        var temp = items[index][code[i]];
-        if (!isNaN(temp)) {
-          temp = temp * 1;
-          if (temp > codeObject[code[i]].max) {
-            codeObject[code[i]].max = temp;
-            if (codeObject[code[i]].min == -1) {
-              codeObject[code[i]].min = temp;
+        var fieldCode = code[i];
+        var fieldValue = items[index][fieldCode];
+        if (!isNaN(fieldValue)) {
+          fieldValue = fieldValue * 1;
+          if (fieldValue == 0 && formates.contains(fieldCode)) {
+            items[index][fieldCode] = null;
+          } else {
+            if (fieldValue > codeObject[fieldCode].max) {
+              codeObject[fieldCode].max = fieldValue;
+              if (codeObject[fieldCode].min == -100000) {
+                codeObject[fieldCode].min = fieldValue;
+              }
             }
-          }
-          if (temp < codeObject[code[i]].min) {
-            codeObject[code[i]].min = temp;
+            if (fieldValue < codeObject[fieldCode].min) {
+              codeObject[fieldCode].min = fieldValue;
+            }
           }
         }
       }
     }
     for (var index in items) {
       for (var i = 0; i < code.length; i++) {
-        var codeValue = items[index][code[i]];
-        if (!isNaN(codeValue)) {
-          codeValue = codeValue * 1;
-          items[index][code[i] + "_base"] = codeValue;
-          if (codeObject[code[i]].min == codeObject[code[i]].max) {
-            items[index][code[i]] = 1;
+        var fieldCode = code[i];
+        var fieldValue = items[index][fieldCode];
+
+        if (fieldValue!=null&&!isNaN(fieldValue)) {
+          fieldValue = fieldValue * 1;
+          items[index][fieldCode + "_base"] = fieldValue;
+          if (codeObject[fieldCode].min == codeObject[fieldCode].max) {
+            items[index][fieldCode] = 1;
           } else {
-            items[index][code[i]] = (codeValue - codeObject[code[i]].min) * 1.0 / (codeObject[code[i]].max - codeObject[code[i]].min);
+            items[index][fieldCode] = (fieldValue - codeObject[fieldCode].min) * 1.0 / (codeObject[fieldCode].max - codeObject[fieldCode].min);
           }
-          items[index]["item" + code[i]] = codeObject[code[i]];
+          items[index]["item" + fieldCode] = codeObject[fieldCode];
         }
       }
     }
@@ -175,7 +182,10 @@ export default {
       var item = {};
       var itemdata = datas[i].column;
       for (var j = 0; j < itemdata.length; j++) {
-        item[filds[j]] = itemdata[j];
+        var fieldValue = itemdata[j];
+        var fieldCode = filds[j];
+        item[fieldCode] = fieldValue;
+
       }
       tempDatas.push(item);
     }

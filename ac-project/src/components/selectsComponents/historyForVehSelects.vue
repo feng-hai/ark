@@ -42,32 +42,15 @@ export default {
   data() {
     return {
       itemNums: [{
-          id: 50,
-          name: "50"
-
-        }, {
-          id: 100,
-          name: "100",
-        }, {
-          id: 500,
-          name: "500"
-        }, {
           id: 1000,
           name: " 1 k"
         }, {
           id: 10000,
           name: "10 k"
-        },
-        {
-          id: 100000,
-          name: "100 k"
-        }, {
-          id: 150000,
-          name: "150 k"
         }
       ],
       total: 0,
-      itemNum: 100,
+      itemNum: 1000,
       url: '', //查询历史数据的url
       loading: false,
       loadText:'正在加载...',
@@ -188,7 +171,6 @@ export default {
         params: param
       }).then(res => {
 
-
         var rows = res.data.rows;
         var newData = utils.formatHistoryData(rows);
         that.datas = that.datas.concat(newData);
@@ -197,10 +179,7 @@ export default {
           end = utils.dateFtt("yyyy-MM-ddThh:mm:ss", utils.toDate(newData[newData.length - 1].DATIME_RX));;
           that.searchHistory(url, start, end, num);
         } else {
-
-          var newData_for = utils.formatData(that.form.y, that.datas);
-          //console.log(newData_for);
-
+          var newData_for = utils.formatData(that.form.y, that.datas,that.form.zeroFields);
           that.eventControl({
             pageId: this.pageId,
             type: 5,

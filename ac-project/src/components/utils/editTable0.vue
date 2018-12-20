@@ -138,6 +138,15 @@ export default {
           }
           return item;
         })
+        if (newVal == "/bigger/national_standard") {
+
+
+          res.data.push({
+            field: 'DATIME_RX',
+            title: "数据时间",
+            api_uri: 'https://shangqi.wlwltech.com/sensor/hydra'
+          })
+        }
         that.master_user.data = res.data;
         that.readMasterUser();
       })
@@ -189,6 +198,7 @@ export default {
     //读取表格数据
     readMasterUser() {
       //根据实际情况，自己改下啊
+
       this.master_user.data = this.master_user.data.map(i => {
         i.id = generateId.get(); //模拟后台插入成功后有了id
         i.isSet = false; //给后台返回数据添加`isSet`标识

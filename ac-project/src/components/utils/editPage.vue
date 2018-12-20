@@ -52,6 +52,12 @@
       </el-option>
     </el-select>
   </el-form-item>
+  <el-form-item label="规整零" v-if="form.resource!=30">
+    <el-select v-model="form.zeroFields" multiple placeholder="请选择y">
+      <el-option v-for="item in functionsItems" :key="item.id" :label="item.name" :value="item.id">
+      </el-option>
+    </el-select>
+  </el-form-item>
   <el-form-item label="列数据" v-if="form.resource==30">
     <el-select v-model="form.columns" @change="changeTableColumn" multiple placeholder="请选择列表要展示的列">
       <el-option v-for="item in functionsItems" :key="item.id" :label="item.name" :value="item.id">
@@ -118,7 +124,8 @@ export default {
         columns: [],
         tableCols: [],
         url: '',
-        cols: []
+        cols: [],
+        zeroFields: [] //用于过滤数值等于零的字段
       }
     }
   },
